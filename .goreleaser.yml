@@ -1,0 +1,79 @@
+project_name: tman
+
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - binary: tman
+    id: tman
+    ldflags: -s -w -X github.com/alajmo/tman/cmd.version={{ .Version }} -X github.com/alajmo/tman/cmd.commit={{ .Commit }} -X github.com/alajmo/tman/cmd.date={{ .Date }}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+      - freebsd
+      - netbsd
+      - openbsd
+    goarch:
+      - amd64
+      - 386
+      - arm
+      - arm64
+    goarm:
+      - 7
+
+    ignore:
+      - goos: freebsd
+        goarch: arm
+      - goos: freebsd
+        goarch: arm64
+
+      - goos: openbsd
+        goarch: arm
+      - goos: openbsd
+        goarch: arm64
+
+      - goos: darwin
+        goarch: arm
+      - goos: darwin
+        goarch: 386
+
+      - goos: windows
+        goarch: arm
+      - goos: windows
+        goarch: arm64
+
+archives:
+  - id: 'tman'
+    builds: ['tman']
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    files:
+      - README.md
+      - LICENSE
+
+brews:
+  - name: tman
+    description: "CLI tool to help you manage multiple repositories"
+    homepage: "https://tmancli.com"
+    license: "MIT"
+    tap:
+      owner: alajmo
+      name: homebrew-tman
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    folder: Formula
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: '{{ .Tag }}-next'
+
+changelog:
+  skip: true
